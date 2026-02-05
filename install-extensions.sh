@@ -10,6 +10,10 @@ error() {
   echo -e "\033[1;31m[Dotfiles Error]\033[0m $1"
 }
 
+has_cmd() {
+  command -v "$1" >/dev/null 2>&1
+}
+
 # VS Code Extensions
 if has_cmd code; then
   log "Checking VS Code extensions..."
