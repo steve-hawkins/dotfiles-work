@@ -146,28 +146,4 @@ else
   error "dotnet SDK not found. Skipping dotnet tools."
 fi
 
-# VS Code Extensions
-if has_cmd code; then
-  log "Checking VS Code extensions..."
-
-  EXTENSIONS=(
-    "streetsidesoftware.code-spell-checker"
-    "yzhang.markdown-all-in-one"
-    "davidanson.vscode-markdownlint"
-    "esbenp.prettier-vscode"
-    "eamodio.gitlens"
-    "ms-vscode.powershell"
-    "redhat.vscode-yaml"
-  )
-
-  for ext in "${EXTENSIONS[@]}"; do
-    if ! code --list-extensions | grep -qi "^${ext}$"; then
-      log "Installing VS Code extension: $ext"
-      code --install-extension "$ext"
-    fi
-  done
-else
-  error "VS Code CLI not found. Skipping extension installation."
-fi
-
 log "Dotfiles installation complete!"
