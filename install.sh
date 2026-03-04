@@ -141,10 +141,10 @@ if has_cmd npm; then
   fi
 
   # GitHub Copilot CLI
-  # Using the @githubnext/github-copilot-cli package as requested for CLI experience
-  if ! npm list -g @githubnext/github-copilot-cli >/dev/null 2>&1; then
+  # Using the @github/copilot package as requested for CLI experience
+  if ! npm list -g @github/copilot >/dev/null 2>&1; then
     log "Installing GitHub Copilot CLI..."
-    if sudo npm install -g @githubnext/github-copilot-cli; then
+    if sudo npm install -g @github/copilot; then
       log "GitHub Copilot CLI installed successfully"
     else
       error "Failed to install GitHub Copilot CLI"
@@ -174,19 +174,18 @@ if has_cmd uv && ! uv tool list 2>/dev/null | grep -q "specify-cli"; then
   fi
 fi
 
+# Aspire
+if ! has_cmd aspire; then
+  log "Installing dotnet Aspire..."
+  if curl -sSL https://aspire.dev/install.sh | bash; then
+    log "Aspire installed successfully"
+  else
+    error "Failed to install Aspire"
+  fi
+fi
+
 # dotnet tools
 if has_cmd dotnet; then
-  # Aspire
-  if ! dotnet tool list --global | grep -q aspire; then
-    log "Installing dotnet Aspire..."
-    # This might require sudo if dotnet is installed in root location
-    if sudo dotnet tool install --global aspire; then
-      log "Aspire installed successfully"
-    else
-      error "Failed to install Aspire"
-    fi
-  fi
-
   # dotnet outdated
   if ! dotnet tool list --global | grep -q "dotnet-outdated-tool"; then
     log "Installing dotnet-outdated-tool..."
