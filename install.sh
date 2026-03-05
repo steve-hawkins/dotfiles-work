@@ -72,6 +72,8 @@ if ! has_cmd zsh; then
   else
     error "Failed to install Zsh"
   fi
+else
+  log "Zsh already installed, skipping"
 fi
 
 # Symlink .zshrc
@@ -105,6 +107,8 @@ if ! has_cmd eza; then
   else
     error "Failed to install eza prerequisites"
   fi
+else
+  log "eza already installed, skipping"
 fi
 
 # Install Oh My Posh
@@ -115,6 +119,8 @@ if ! has_cmd oh-my-posh; then
   else
     error "Failed to install Oh My Posh"
   fi
+else
+  log "Oh My Posh already installed, skipping"
 fi
 
 # Setup Montys theme
@@ -138,6 +144,8 @@ if has_cmd npm; then
     else
       error "Failed to install Azure DevOps MCP"
     fi
+  else
+    log "Azure DevOps MCP already installed, skipping"
   fi
 
   # GitHub Copilot CLI
@@ -149,6 +157,8 @@ if has_cmd npm; then
     else
       error "Failed to install GitHub Copilot CLI"
     fi
+  else
+    log "GitHub Copilot CLI already installed, skipping"
   fi
 else
   warn "npm not found. Skipping Azure DevOps MCP and GitHub Copilot CLI."
@@ -163,26 +173,24 @@ if ! has_cmd uv; then
   else
     error "Failed to install uv"
   fi
+else
+  log "uv already installed, skipping"
 fi
 
-if has_cmd uv && ! uv tool list 2>/dev/null | grep -q "specify-cli"; then
-  log "Installing spec-kit..."
-  if uv tool install specify-cli --from git+https://github.com/github/spec-kit.git --force; then
-    log "spec-kit installed successfully"
+if has_cmd uv; then
+  if ! uv tool list 2>/dev/null | grep -q "specify-cli"; then
+    log "Installing spec-kit..."
+    if uv tool install specify-cli --from git+https://github.com/github/spec-kit.git --force; then
+      log "spec-kit installed successfully"
+    else
+      error "Failed to install spec-kit"
+    fi
   else
-    error "Failed to install spec-kit"
+    log "spec-kit already installed, skipping"
   fi
 fi
 
-# Aspire
-if ! has_cmd aspire; then
-  log "Installing dotnet Aspire..."
-  if curl -sSL https://aspire.dev/install.sh | bash; then
-    log "Aspire installed successfully"
-  else
-    error "Failed to install Aspire"
-  fi
-fi
+
 
 # dotnet tools
 if has_cmd dotnet; then
@@ -194,6 +202,20 @@ if has_cmd dotnet; then
     else
       error "Failed to install dotnet-outdated-tool"
     fi
+  else
+    log "dotnet-outdated-tool already installed, skipping"
+  fi
+
+  # Aspire
+  if ! has_cmd aspire; then
+    log "Installing dotnet Aspire..."
+    if curl -sSL https://aspire.dev/install.sh | bash; then
+      log "Aspire installed successfully"
+    else
+      error "Failed to install Aspire"
+    fi
+  else
+    log "Aspire already installed, skipping"
   fi
 else
   warn "dotnet SDK not found. Skipping dotnet tools."
