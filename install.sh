@@ -35,6 +35,7 @@ fi
 
 # 2. Config Files Association
 USER_HOME=${HOME}
+CURRENT_USER=${USER:-$(whoami)}
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 log "Linking configuration files from $DOTFILES_DIR..."
@@ -130,6 +131,16 @@ if curl -sLo "$USER_HOME/.poshthemes/montys.omp.json" https://raw.githubusercont
   log "Montys theme installed successfully"
 else
   warn "Failed to download Montys theme"
+fi
+
+# Setup Tokyo Night theme
+log "Setting up Tokyo Night theme..."
+sudo chown -R $CURRENT_USER:$CURRENT_USER "$USER_HOME/.config"
+mkdir -p "$USER_HOME/.config/eza"
+if curl -sLo "$USER_HOME/.config/eza/theme.yml" https://raw.githubusercontent.com/eza-community/eza-themes/main/themes/tokyonight.yml; then
+  log "Tokyo Night theme installed successfully"
+else
+  warn "Failed to download Tokyo Night theme"
 fi
 
 # 4. Specific Utilities
