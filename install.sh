@@ -175,34 +175,6 @@ else
   warn "npm not found. Skipping Azure DevOps MCP and GitHub Copilot CLI."
 fi
 
-# uv and spec-kit
-if ! has_cmd uv; then
-  log "Installing uv..."
-  if curl -LsSf https://astral.sh/uv/install.sh | sh; then
-    export PATH="$HOME/.local/bin:$PATH"
-    log "uv installed successfully"
-  else
-    error "Failed to install uv"
-  fi
-else
-  log "uv already installed, skipping"
-fi
-
-if has_cmd uv; then
-  if ! uv tool list 2>/dev/null | grep -q "specify-cli"; then
-    log "Installing spec-kit..."
-    if uv tool install specify-cli --from git+https://github.com/github/spec-kit.git --force; then
-      log "spec-kit installed successfully"
-    else
-      error "Failed to install spec-kit"
-    fi
-  else
-    log "spec-kit already installed, skipping"
-  fi
-fi
-
-
-
 # dotnet tools
 if has_cmd dotnet; then
   # dotnet outdated
