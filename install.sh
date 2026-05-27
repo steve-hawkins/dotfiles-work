@@ -145,34 +145,26 @@ fi
 
 # 4. Specific Utilities
 
-# NPM Utilities
-if has_cmd npm; then
-  # Azure DevOps MCP
-  if ! npm list -g @azure-devops/mcp >/dev/null 2>&1; then
-    log "Installing Azure DevOps MCP..."
-    if sudo npm install -g @azure-devops/mcp; then
-      log "Azure DevOps MCP installed successfully"
-    else
-      error "Failed to install Azure DevOps MCP"
+# GitHub Copilot CLI
+if ! has_cmd copilot; then
+  log "Installing GitHub Copilot CLI..."
+  if has_cmd npm; then
+    if ! npm list -g @github/copilot >/dev/null 2>&1; then
+      if sudo npm install -g @github/copilot; then
+        log "GitHub Copilot CLI installed successfully"
+      else
+        error "Failed to install GitHub Copilot CLI"
+      fi
     fi
   else
-    log "Azure DevOps MCP already installed, skipping"
-  fi
-
-  # GitHub Copilot CLI
-  # Using the @github/copilot package as requested for CLI experience
-  if ! npm list -g @github/copilot >/dev/null 2>&1; then
-    log "Installing GitHub Copilot CLI..."
-    if sudo npm install -g @github/copilot; then
+    if curl -fsSL https://gh.io/copilot-install | bash; then
       log "GitHub Copilot CLI installed successfully"
     else
       error "Failed to install GitHub Copilot CLI"
     fi
-  else
-    log "GitHub Copilot CLI already installed, skipping"
   fi
 else
-  warn "npm not found. Skipping Azure DevOps MCP and GitHub Copilot CLI."
+  log "GitHub Copilot CLI already installed, skipping"
 fi
 
 # dotnet tools
