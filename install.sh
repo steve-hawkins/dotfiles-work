@@ -145,28 +145,6 @@ fi
 
 # 4. Specific Utilities
 
-# GitHub Copilot CLI
-if ! has_cmd copilot; then
-  log "Installing GitHub Copilot CLI..."
-  if has_cmd npm; then
-    if ! npm list -g @github/copilot >/dev/null 2>&1; then
-      if sudo npm install -g @github/copilot; then
-        log "GitHub Copilot CLI installed successfully"
-      else
-        error "Failed to install GitHub Copilot CLI"
-      fi
-    fi
-  else
-    if curl -fsSL https://gh.io/copilot-install | bash; then
-      log "GitHub Copilot CLI installed successfully"
-    else
-      error "Failed to install GitHub Copilot CLI"
-    fi
-  fi
-else
-  log "GitHub Copilot CLI already installed, skipping"
-fi
-
 # dotnet tools
 if has_cmd dotnet; then
   # dotnet outdated
@@ -194,6 +172,51 @@ if has_cmd dotnet; then
   fi
 else
   warn "dotnet SDK not found. Skipping dotnet tools."
+fi
+
+# GitHub Copilot CLI
+if ! has_cmd copilot; then
+  log "Installing GitHub Copilot CLI..."
+  if has_cmd npm; then
+    if ! npm list -g @github/copilot >/dev/null 2>&1; then
+      if sudo npm install -g @github/copilot; then
+        log "GitHub Copilot CLI installed successfully"
+      else
+        error "Failed to install GitHub Copilot CLI"
+      fi
+    fi
+  else
+    if curl -fsSL https://gh.io/copilot-install | bash; then
+      log "GitHub Copilot CLI installed successfully"
+    else
+      error "Failed to install GitHub Copilot CLI"
+    fi
+  fi
+else
+  log "GitHub Copilot CLI already installed, skipping"
+  log "Updating GitHub Copilot CLI..."
+  if copilot update; then
+    log "GitHub Copilot CLI updated successfully"
+  else
+    warn "Failed to update GitHub Copilot CLI"
+  fi
+fi
+
+# Install dotnet/skills plugin for Copilot CLI
+if has_cmd copilot; then
+  log "Checking for dotnet/skills plugin..."
+  if ! copilot plugin list 2>/dev/null | grep -q "dotnet@dotnet-agent-skills"; then
+    log "Adding dotnet/skills marketplace to Copilot CLI..."
+    copilot plugin marketplace add dotnet/skills 2>/dev/null || true
+    log "Installing dotnet plugin from dotnet-agent-skills..."
+    if copilot plugin install dotnet@dotnet-agent-skills; then
+      log "dotnet plugin installed successfully"
+    else
+      warn "Failed to install dotnet plugin from dotnet-agent-skills"
+    fi
+  else
+    log "dotnet plugin already installed, skipping"
+  fi
 fi
 
 log "Dotfiles installation complete!"
