@@ -177,17 +177,21 @@ fi
 # GitHub Copilot CLI
 if ! has_cmd copilot; then
   log "Installing GitHub Copilot CLI..."
+  COPILOT_INSTALLED=false
   if has_cmd npm; then
-    if ! npm list -g @github/copilot >/dev/null 2>&1; then
-      if sudo npm install -g @github/copilot; then
-        log "GitHub Copilot CLI installed successfully"
-      else
-        error "Failed to install GitHub Copilot CLI"
-      fi
+    if npm list -g @github/copilot >/dev/null 2>&1; then
+      log "GitHub Copilot CLI npm package already present, skipping npm install"
+      COPILOT_INSTALLED=true
+    elif npm install -g @github/copilot; then
+      log "GitHub Copilot CLI installed successfully via npm"
+      COPILOT_INSTALLED=true
+    else
+      warn "npm install failed, falling back to curl installer..."
     fi
-  else
+  fi
+  if [ "$COPILOT_INSTALLED" = false ]; then
     if curl -fsSL https://gh.io/copilot-install | bash; then
-      log "GitHub Copilot CLI installed successfully"
+      log "GitHub Copilot CLI installed successfully via curl"
     else
       error "Failed to install GitHub Copilot CLI"
     fi
