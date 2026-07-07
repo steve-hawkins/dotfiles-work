@@ -116,6 +116,7 @@ fi
 if ! has_cmd oh-my-posh; then
   log "Installing Oh My Posh..."
   if curl -s https://ohmyposh.dev/install.sh | sudo bash -s -- -d /usr/local/bin; then
+    sudo chown -R vscode:vscode /home/vscode
     log "Oh My Posh installed successfully"
   else
     error "Failed to install Oh My Posh"
