@@ -22,40 +22,32 @@ warn() {
   echo -e "\033[1;33m[Dotfiles Warning]\033[0m $1"
 }
 
-# 1. Zscaler / Network Validation
-# We check if we can reach a public endpoint. 
-# If Zscaler is intercepting, curl needs the CA bundle.
-log "Validating network connectivity (Zscaler check)..."
-if ! curl -Is https://github.com > /dev/null 2>&1; then
-  warn "Network check failed. Continuing anyway, but some installations may fail."
-  warn "If behind Zscaler, ensure NODE_EXTRA_CA_CERTS and REQUESTS_CA_BUNDLE are set."
-else
-  log "Network connection verified."
-fi
+has_cmd() {
+  command -v "$1" >/dev/null 2>&1
+}
 
-# 2. Config Files Association
+# Config Files Association
 USER_HOME=${HOME}
 CURRENT_USER=${USER:-$(whoami)}
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 log "Linking configuration files from $DOTFILES_DIR..."
 
-# Symlink PowerShell profile
-PS_CONFIG_DIR="$USER_HOME/.config/powershell"
-mkdir -p "$PS_CONFIG_DIR"
-if [ -f "$DOTFILES_DIR/Microsoft.PowerShell_profile.ps1" ]; then
-  rm -f "$PS_CONFIG_DIR/Microsoft.PowerShell_profile.ps1"
-  ln -s "$DOTFILES_DIR/Microsoft.PowerShell_profile.ps1" "$PS_CONFIG_DIR/Microsoft.PowerShell_profile.ps1"
-  log "Linked PowerShell profile"
+if has_cmd pwsh; then
+  log "PowerShell detected, linking profile..."
+  # Symlink PowerShell profile
+  PS_CONFIG_DIR="$USER_HOME/.config/powershell"
+  mkdir -p "$PS_CONFIG_DIR"
+  if [ -f "$DOTFILES_DIR/Microsoft.PowerShell_profile.ps1" ]; then
+    rm -f "$PS_CONFIG_DIR/Microsoft.PowerShell_profile.ps1"
+    ln -s "$DOTFILES_DIR/Microsoft.PowerShell_profile.ps1" "$PS_CONFIG_DIR/Microsoft.PowerShell_profile.ps1"
+    log "Linked PowerShell profile"
+  else
+    warn "Microsoft.PowerShell_profile.ps1 not found in $DOTFILES_DIR, skipping"
+  fi
 else
-  warn "Microsoft.PowerShell_profile.ps1 not found in $DOTFILES_DIR, skipping"
+  warn "PowerShell not detected, skipping profile linking."
 fi
-
-# 3. Core Utilities
-
-has_cmd() {
-  command -v "$1" >/dev/null 2>&1
-}
 
 # Update package lists if we are going to install apt packages
 if ! has_cmd zsh || ! has_cmd eza; then
@@ -142,86 +134,6 @@ if curl -sLo "$USER_HOME/.config/eza/theme.yml" https://raw.githubusercontent.co
   log "Tokyo Night theme installed successfully"
 else
   warn "Failed to download Tokyo Night theme"
-fi
-
-# 4. Specific Utilities
-
-# dotnet tools
-if has_cmd dotnet; then
-  # dotnet outdated
-  if ! dotnet tool list --global | grep -q "dotnet-outdated-tool"; then
-    log "Installing dotnet-outdated-tool..."
-    if dotnet tool install --global dotnet-outdated-tool; then
-      log "dotnet-outdated-tool installed successfully"
-    else
-      error "Failed to install dotnet-outdated-tool"
-    fi
-  else
-    log "dotnet-outdated-tool already installed, skipping"
-  fi
-
-  # Aspire
-  if ! has_cmd aspire; then
-    log "Installing dotnet Aspire..."
-    if curl -sSL https://aspire.dev/install.sh | bash; then
-      log "Aspire installed successfully"
-    else
-      error "Failed to install Aspire"
-    fi
-  else
-    log "Aspire already installed, skipping"
-  fi
-else
-  warn "dotnet SDK not found. Skipping dotnet tools."
-fi
-
-# GitHub Copilot CLI
-if ! has_cmd copilot; then
-  log "Installing GitHub Copilot CLI..."
-  COPILOT_INSTALLED=false
-  if has_cmd npm; then
-    if npm list -g @github/copilot >/dev/null 2>&1; then
-      log "GitHub Copilot CLI npm package already present, skipping npm install"
-      COPILOT_INSTALLED=true
-    elif npm install -g @github/copilot; then
-      log "GitHub Copilot CLI installed successfully via npm"
-      COPILOT_INSTALLED=true
-    else
-      warn "npm install failed, falling back to curl installer..."
-    fi
-  fi
-  if [ "$COPILOT_INSTALLED" = false ]; then
-    if curl -fsSL https://gh.io/copilot-install | bash; then
-      log "GitHub Copilot CLI installed successfully via curl"
-    else
-      error "Failed to install GitHub Copilot CLI"
-    fi
-  fi
-else
-  log "GitHub Copilot CLI already installed, skipping"
-  log "Updating GitHub Copilot CLI..."
-  if copilot update; then
-    log "GitHub Copilot CLI updated successfully"
-  else
-    warn "Failed to update GitHub Copilot CLI"
-  fi
-fi
-
-# Install dotnet/skills plugin for Copilot CLI
-if has_cmd copilot; then
-  log "Checking for dotnet/skills plugin..."
-  if ! copilot plugin list 2>/dev/null | grep -q "dotnet@dotnet-agent-skills"; then
-    log "Adding dotnet/skills marketplace to Copilot CLI..."
-    copilot plugin marketplace add dotnet/skills 2>/dev/null || true
-    log "Installing dotnet plugin from dotnet-agent-skills..."
-    if copilot plugin install dotnet@dotnet-agent-skills; then
-      log "dotnet plugin installed successfully"
-    else
-      warn "Failed to install dotnet plugin from dotnet-agent-skills"
-    fi
-  else
-    log "dotnet plugin already installed, skipping"
-  fi
 fi
 
 log "Dotfiles installation complete!"
