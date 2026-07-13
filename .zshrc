@@ -9,7 +9,7 @@ if command -v oh-my-posh > /dev/null; then
 fi
 
 # Aliases
-alias ls='eza --icons --oneline --long --git --no-permissions --no-filesize --no-user --changed --all --group-directories-first --colour-scale --time-style relative'
+alias ls='eza --icons --oneline --long --git --no-permissions --no-filesize --no-user --changed --all --group-directories-first --color-scale --time-style relative'
 
 # Enable command auto-correction
 setopt CORRECT
