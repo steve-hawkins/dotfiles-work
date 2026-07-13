@@ -26,7 +26,7 @@ if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
 if (Get-Command eza -ErrorAction SilentlyContinue) {
   function Get-ChildItemEza {
     # Pass all arguments to eza along with user preferences
-    eza $args --icons --oneline --long --git --no-permissions --no-filesize --changed --all --group-directories-first --colour-scale --time-style relative
+    eza $args --icons --oneline --long --git --no-permissions --no-filesize --changed --all --group-directories-first --color-scale --time-style relative
   }
 
   # Override standard ls alias
