@@ -5,7 +5,7 @@ export PATH="$HOME/.local/bin:$HOME/.dotnet/tools:$PATH"
 
 # Initialize Oh My Posh
 if command -v oh-my-posh > /dev/null; then
-    eval "$(oh-my-posh init zsh --config ~/.poshthemes/montys.omp.json)"
+  eval "$(oh-my-posh init zsh --config ~/.poshthemes/montys.omp.json)"
 fi
 
 # Aliases
